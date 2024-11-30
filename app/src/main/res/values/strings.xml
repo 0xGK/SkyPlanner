@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Sky Planner</string>
+    <string name="facebook_app_id">862696632419933</string>
+    <string name="fb_login_protocol_scheme">fb862696632419933 </string>
+    <!-- e.g if App ID is 1234, type fb1234 here! -->
+    <string name="facebook_client_token">7de6898b827fce6e8a55365f0da98244</string>
+</resources>

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_marginStart="15dp"
+    android:layout_marginEnd="15dp">
+
+    <TextView
+        android:id="@+id/departureLocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="인천국제공항 출발"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+    <TextView
+        android:id="@+id/departureDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="11월 28일 목요일"
+        app:layout_constraintTop_toBottomOf="@id/departureLocation"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+
+
+    <TextView
+        android:id="@+id/airlineName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="대한항공"
+        app:layout_constraintTop_toBottomOf="@id/guideline1"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+
+    <TextView
+        android:id="@+id/airlineNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="OZ502"
+        app:layout_constraintTop_toBottomOf="@id/airlineName"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+    <ImageView
+        android:id="@+id/airlineLogo"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        app:srcCompat="@drawable/korean_air_logo"
+        app:layout_constraintTop_toTopOf="@id/guideline1"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="15dp" />
+
+
+    <TextView
+    android:id="@+id/departureTime"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="오후 7:00"
+    app:layout_constraintTop_toBottomOf="@id/guideline2"
+    app:layout_constraintStart_toStartOf="parent"
+    />
+    <TextView
+    android:id="@+id/departureAirport"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="인천국제공항"
+    app:layout_constraintTop_toBottomOf="@id/guideline2"
+    app:layout_constraintStart_toEndOf="@id/departureTime"
+    android:layout_marginStart="20dp"
+    />
+    <TextView
+        android:id="@+id/flightTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="12시간 50분"
+        app:layout_constraintTop_toBottomOf="@id/guideline3"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+
+
+    <TextView
+        android:id="@+id/arrivalTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="오후 7:00"
+        app:layout_constraintTop_toBottomOf="@id/guideline4"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+    <TextView
+        android:id="@+id/arrivalAirport"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="인천국제공항"
+        app:layout_constraintTop_toBottomOf="@id/guideline4"
+        app:layout_constraintStart_toEndOf="@id/arrivalTime"
+        android:layout_marginStart="20dp"
+        />
+
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="70dp"
+        />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="130dp"
+        />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="160dp"
+        />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="190dp"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

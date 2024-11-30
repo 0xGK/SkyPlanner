@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <ImageView
+        android:id="@+id/airlineLogo"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        app:srcCompat="@drawable/korean_air_logo"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginStart="15dp" />
+
+    <TextView
+        android:id="@+id/flightDepartureDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="오전 1:00"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/airlineLogo"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginStart="15dp" />
+
+    <TextView
+        android:id="@+id/tmp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="-"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/flightDepartureDate"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginStart="5dp" />
+
+    <TextView
+        android:id="@+id/flightArrivalDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="오후 3:00"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/tmp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginStart="5dp" />
+
+    <TextView
+        android:id="@+id/flightDiffDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="+1"
+        android:textSize="10dp"
+        app:layout_constraintTop_toTopOf="@id/flightArrivalDate"
+        app:layout_constraintStart_toEndOf="@id/flightArrivalDate"
+        android:layout_marginTop="-3dp" />
+
+    <TextView
+        android:id="@+id/flightTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="15시간 0분"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="15dp" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
