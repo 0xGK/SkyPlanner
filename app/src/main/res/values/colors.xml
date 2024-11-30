@@ -3,11 +3,11 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="gray">#D9D7D3</color>
-    <color name="dark_gray">#A9A7A3</color>
-    <color name="light_gray">#E9E7E3</color>
     <color name="orange">#FF7940</color>
-    <color name="green">#2E6E59</color>
-    <color name="darkGreen">#2C483D</color>
     <color name="yellow">#FFD339</color>
     <color name="red">#FF0000</color>
+    <color name="green">#2E6E59</color>
+    <color name="dark_gray">#A9A7A3</color>
+    <color name="light_gray">#E9E7E3</color>
+    <color name="dark_green">#2C483D</color>
 </resources>

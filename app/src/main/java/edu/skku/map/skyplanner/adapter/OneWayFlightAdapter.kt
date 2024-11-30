@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
-import edu.skku.map.skyplanner.OneWayFlight
+import edu.skku.map.skyplanner.model.OneWayFlight
 import edu.skku.map.skyplanner.R
 import edu.skku.map.skyplanner.utils.AirlineUtils
 import edu.skku.map.skyplanner.utils.DateUtils

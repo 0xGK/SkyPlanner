@@ -1,4 +1,4 @@
-package edu.skku.map.skyplanner
+package edu.skku.map.skyplanner.model
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

@@ -1,4 +1,4 @@
-package edu.skku.map.skyplanner
+package edu.skku.map.skyplanner.database
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase

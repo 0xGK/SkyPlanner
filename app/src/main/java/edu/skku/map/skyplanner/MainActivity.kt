@@ -7,8 +7,6 @@ import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
-import androidx.core.content.ContextCompat
-import androidx.core.view.WindowCompat
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
 import com.facebook.FacebookException
@@ -17,8 +15,8 @@ import com.facebook.GraphRequest
 import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
 import com.facebook.login.widget.LoginButton
+import edu.skku.map.skyplanner.database.DatabaseHelper
 import okhttp3.*
-import okio.IOException
 import java.util.Arrays
 
 class MainActivity : AppCompatActivity() {
@@ -42,7 +40,6 @@ class MainActivity : AppCompatActivity() {
     private val client = OkHttpClient()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        window.statusBarColor = ContextCompat.getColor(this, R.color.dark_gray)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -94,49 +91,46 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        fbLoginBtn.setOnClickListener{
-            loginManager.logInWithReadPermissions(this,Arrays.asList("public_profile", "email"))
-            loginManager.registerCallback(callbackManager, object: FacebookCallback<LoginResult> {
-                override fun onCancel() {
-                    Toast.makeText(this@MainActivity, "Facebook Login Cancelled", Toast.LENGTH_SHORT).show()
-                }
+        // Facebook Callback 설정 - onCreate에서 한 번만 설정
+        loginManager.registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
+            override fun onCancel() {
+                Toast.makeText(this@MainActivity, "Facebook Login Cancelled", Toast.LENGTH_SHORT).show()
+            }
 
-                override fun onError(error: FacebookException) {
-                    Toast.makeText(this@MainActivity, "Facebook Login Error Occurred...", Toast.LENGTH_SHORT).show()
-                    Log.d("onError", "error : ${error.toString()}")
-                }
+            override fun onError(error: FacebookException) {
+                Toast.makeText(this@MainActivity, "Facebook Login Error Occurred...", Toast.LENGTH_SHORT).show()
+                Log.d("onError", "error : ${error.message}")
+            }
 
-                override fun onSuccess(result: LoginResult) {
-                    val graphRequest = GraphRequest.newMeRequest(result.accessToken) { f_object, response ->
-                        if (response?.error != null) {
-                            Log.e("GraphRequestError", response.error.toString())
-                            return@newMeRequest
-                        }
-
-                        // GSON 객체 초기화
-                        val gson = com.google.gson.Gson()
-
-                        // JSON 데이터를 파싱하여 사용자 정보 객체 생성
-                        val userInfo = gson.fromJson(f_object.toString(), FacebookUser::class.java)
-
-                        // 로그 확인
-                        Log.d("onSuccess", "User Info: ${userInfo.name}, ${userInfo.email}")
-
-                        // Intent로 데이터 전달
-                        val intent = Intent(this@MainActivity, SearchActivity::class.java).apply{
-                            putExtra(EXT_USER_NAME, userInfo.name)
-
-                        }
-                        startActivity(intent)
+            override fun onSuccess(result: LoginResult) {
+                val graphRequest = GraphRequest.newMeRequest(result.accessToken) { fObject, response ->
+                    if (response?.error != null) {
+                        Log.e("GraphRequestError", response.error.toString())
+                        return@newMeRequest
                     }
-                    val parameters = Bundle()
-                    parameters.putString("fields", "id,name,email,birthday")
-                    graphRequest.parameters = parameters
-                    graphRequest.executeAsync()
 
+                    // JSON 데이터를 파싱하여 Facebook 사용자 정보 객체 생성
+                    val gson = com.google.gson.Gson()
+                    val userInfo = gson.fromJson(fObject.toString(), FacebookUser::class.java)
 
+                    Log.d("onSuccess", "User Info: ${userInfo.name}, ${userInfo.email}")
+
+                    // Intent로 데이터 전달
+                    val intent = Intent(this@MainActivity, SearchActivity::class.java).apply {
+                        putExtra(EXT_USER_NAME, userInfo.name)
+                    }
+                    startActivity(intent)
                 }
-            })
+                val parameters = Bundle()
+                parameters.putString("fields", "id,name,email,birthday")
+                graphRequest.parameters = parameters
+                graphRequest.executeAsync()
+            }
+        })
+
+        // Facebook 로그인 버튼 클릭 이벤트
+        fbLoginBtn.setOnClickListener {
+            loginManager.logInWithReadPermissions(this, Arrays.asList("public_profile", "email"))
         }
     }
 
@@ -146,6 +140,7 @@ class MainActivity : AppCompatActivity() {
         val userPassword = findViewById<EditText>(R.id.user_password)
         userId.text.clear()
         userPassword.text.clear()
+        LoginManager.getInstance().logOut() // Facebook 로그아웃
     }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -153,5 +148,5 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-   
+
 }

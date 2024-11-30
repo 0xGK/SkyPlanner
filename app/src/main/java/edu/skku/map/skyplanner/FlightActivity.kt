@@ -3,13 +3,15 @@ package edu.skku.map.skyplanner
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
-import android.widget.ImageButton
 import android.widget.ListView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import edu.skku.map.skyplanner.MainActivity.Companion.EXT_FLIGHT_DETAIL
 import edu.skku.map.skyplanner.adapter.OneWayFlightAdapter
 import edu.skku.map.skyplanner.adapter.RoundTripFlightAdapter
+import edu.skku.map.skyplanner.database.DatabaseHelper
+import edu.skku.map.skyplanner.model.OneWayFlight
+import edu.skku.map.skyplanner.model.RoundTripFlight
 import edu.skku.map.skyplanner.utils.DateUtils
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -27,7 +29,7 @@ class FlightActivity : AppCompatActivity() {
         val listView = findViewById<ListView>(R.id.listViewFlight)
 
 
-        val btnBack = findViewById<ImageButton>(R.id.btn_back)
+        val btnBack = findViewById<Button>(R.id.btn_back)
         val textAirport = findViewById<TextView>(R.id.textAirport)
         val textResultCnt = findViewById<TextView>(R.id.textResultCnt)
         val textDepartureDate = findViewById<TextView>(R.id.textDepartureDate)
@@ -36,7 +38,7 @@ class FlightActivity : AppCompatActivity() {
 //        val btnSortArrivalDate = findViewById<Button>(R.id.btnSortArrivalDate)
         val btnSortTime = findViewById<Button>(R.id.btnSortTime)
 
-        textDepartureDate.text = formatDateToKoreanStyle(intent.getStringExtra(MainActivity.EXT_DEPARTURE_DATE).toString())
+
         val roundTripOption = intent.getBooleanExtra(MainActivity.EXT_ROUND_TRIP_OPTION, true)
 
         val departureLocationString = intent.getStringExtra(MainActivity.EXT_DEPARTURE_LOCATION)
@@ -58,7 +60,9 @@ class FlightActivity : AppCompatActivity() {
 
 
         if(roundTripOption){
-            // 출발편 쿼리
+            textDepartureDate.text = formatDateToKoreanStyle(intent.getStringExtra(MainActivity.EXT_DEPARTURE_DATE).toString())+" - " +
+                    formatDateToKoreanStyle(intent.getStringExtra(MainActivity.EXT_ARRIVAL_DATE).toString())
+
             val departureCursor = db.rawQuery(
                 "SELECT * FROM Flight WHERE departure_location = ? AND arrival_location = ? AND date(departure_date) = ?",
                 arrayOf(departureLocation, arrivalLocation, departureDate)
@@ -128,7 +132,7 @@ class FlightActivity : AppCompatActivity() {
         }
 //      one way
         else{
-//            val cursor = db.rawQuery("SELECT * FROM Flight", null)
+            textDepartureDate.text = formatDateToKoreanStyle(intent.getStringExtra(MainActivity.EXT_DEPARTURE_DATE).toString())
             val cursor = db.rawQuery(
                 "SELECT * FROM Flight WHERE departure_location = ? AND arrival_location = ? AND date(departure_date) = ?",
                 arrayOf(departureLocation, arrivalLocation, departureDate)

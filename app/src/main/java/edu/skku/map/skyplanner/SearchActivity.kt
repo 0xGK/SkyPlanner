@@ -12,15 +12,14 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import edu.skku.map.skyplanner.MainActivity.Companion.EXT_ARRIVAL_DATE
 import edu.skku.map.skyplanner.MainActivity.Companion.EXT_ARRIVAL_LOCATION
 import edu.skku.map.skyplanner.MainActivity.Companion.EXT_DEPARTURE_DATE
 import edu.skku.map.skyplanner.MainActivity.Companion.EXT_DEPARTURE_LOCATION
 import edu.skku.map.skyplanner.MainActivity.Companion.EXT_ROUND_TRIP_OPTION
+import edu.skku.map.skyplanner.database.DatabaseHelper
 import java.util.Calendar
 
 class SearchActivity : AppCompatActivity() {
@@ -66,9 +65,29 @@ class SearchActivity : AppCompatActivity() {
         val arrivalGroup = findViewById<LinearLayout>(R.id.arrivalGroup)
         val userName = findViewById<TextView>(R.id.user_name)
         userName.text = intent.getStringExtra(MainActivity.EXT_USER_NAME)
-        setDatePicker(editTextDepartureDate)
-        setDatePicker(editTextArrivalDate)
         var roundTripOption = true
+        var departureDate: Calendar? = null
+        var arrivalDate: Calendar? = null
+
+        setDatePicker(editTextDepartureDate) { selectedDate ->
+            departureDate = selectedDate
+
+            // 출발 날짜가 도착 날짜보다 이후라면 도착 날짜 초기화
+            if (arrivalDate != null && departureDate!!.after(arrivalDate)) {
+                editTextArrivalDate.text.clear()
+                Toast.makeText(this, "출발 날짜는 도착 날짜보다 이전이어야 합니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        setDatePicker(editTextArrivalDate) { selectedDate ->
+            arrivalDate = selectedDate
+
+            // 도착 날짜가 출발 날짜보다 이전이라면 도착 날짜 초기화
+            if (departureDate != null && arrivalDate!!.before(departureDate)) {
+                editTextArrivalDate.text.clear()
+                Toast.makeText(this, "도착 날짜는 출발 날짜보다 이후이어야 합니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
 
 
         setupAutoCompleteTextView(editTextDepartureLocation, departureAirports)
@@ -107,8 +126,8 @@ class SearchActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
-    fun setDatePicker(editText: EditText) {
-        // 오늘 날짜 기본값 설정
+    fun setDatePicker(editText: EditText, onDateSelected: (Calendar) -> Unit) {
+        // 기본 날짜로 오늘 날짜 설정
         val calendar = Calendar.getInstance()
 
         editText.setOnClickListener {
@@ -119,17 +138,26 @@ class SearchActivity : AppCompatActivity() {
             val datePickerDialog = DatePickerDialog(
                 editText.context,
                 { _, selectedYear, selectedMonth, selectedDay ->
+                    // 선택한 날짜를 Calendar 객체에 저장
+                    calendar.set(selectedYear, selectedMonth, selectedDay)
                     val date = "$selectedYear-${String.format("%02d", selectedMonth + 1)}-${String.format("%02d", selectedDay)}"
                     editText.setText(date)
+
+                    // 날짜 선택 후 추가 로직 실행
+                    onDateSelected(calendar)
                 },
                 year,
                 month,
                 day
             )
 
-            // DatePickerDialog 표시
             datePickerDialog.show()
         }
+    }
+
+
+    fun validateLocations(departure: String?, arrival: String?): Boolean {
+        return departure != arrival
     }
 
     fun setupAutoCompleteTextView(autoCompleteTextView: AutoCompleteTextView, items: List<String>) {
@@ -150,7 +178,18 @@ class SearchActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 adapter.filter.filter(s)
             }
-            override fun afterTextChanged(s: Editable?) {}
+            override fun afterTextChanged(s: Editable?) {
+                val editTextDepartureLocation = findViewById<AutoCompleteTextView>(R.id.editTextDepartureLocation)
+                val editTextArrivalLocation = findViewById<AutoCompleteTextView>(R.id.editTextArrivalLocation)
+                val departure = editTextDepartureLocation.text.toString().trim()
+                val arrival = editTextArrivalLocation.text.toString().trim()
+
+                if (!validateLocations(departure, arrival)) {
+                    autoCompleteTextView.error = "출발지와 목적지가 같을 수 없습니다."
+                } else {
+                    autoCompleteTextView.error = null
+                }
+            }
         })
     }
 }
