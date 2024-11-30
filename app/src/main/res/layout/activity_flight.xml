@@ -67,12 +67,20 @@
                 android:id="@+id/btnSortPrice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                app:cornerRadius="8dp"
+                app:backgroundTint="@color/darkGreen"
+                android:layout_marginHorizontal="3dp"
                 android:text="최저가"
                 />
             <Button
                 android:id="@+id/btnSortDepartureDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                app:cornerRadius="8dp"
+                app:backgroundTint="@color/darkGreen"
+                android:layout_marginHorizontal="3dp"
                 android:text="빠른 출발 시각"
                 />
             <!--    <Button-->
@@ -87,6 +95,10 @@
                 android:id="@+id/btnSortTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                app:cornerRadius="8dp"
+                app:backgroundTint="@color/darkGreen"
+                android:layout_marginHorizontal="3dp"
                 android:text="최단 여행 시간"
                 />
 

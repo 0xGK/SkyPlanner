@@ -15,7 +15,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     override fun onCreate(db: SQLiteDatabase) {
         // 테이블 생성 쿼리
-        val createTableQuery = """
+        val createFlightTableQuery = """
             CREATE TABLE Flight (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 departure_location TEXT NOT NULL,
@@ -26,9 +26,22 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 price int NOT NULL
             )
         """
-        db.execSQL(createTableQuery)
+        db.execSQL(createFlightTableQuery)
+        val createUserTableQuery = """
+            CREATE TABLE User (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id TEXT NOT NULL,
+                password TEXT NOT NULL,
+                name TEXT NOT NULL,
+                pin_number TEXT NOT NULL
+            )
+        """
+        db.execSQL(createUserTableQuery)
 
         insertInitialQuery(db)
+
+
+
         Log.d(TAG, "Database created successfully!") // 데이터베이스 생성 로그
     }
 

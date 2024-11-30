@@ -11,6 +11,7 @@ import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -63,6 +64,8 @@ class SearchActivity : AppCompatActivity() {
         val editTextArrivalDate = findViewById<EditText>(R.id.editTextArrivalDate)
         val departureGroup = findViewById<LinearLayout>(R.id.departureGroup)
         val arrivalGroup = findViewById<LinearLayout>(R.id.arrivalGroup)
+        val userName = findViewById<TextView>(R.id.user_name)
+        userName.text = intent.getStringExtra(MainActivity.EXT_USER_NAME)
         setDatePicker(editTextDepartureDate)
         setDatePicker(editTextArrivalDate)
         var roundTripOption = true
@@ -88,15 +91,20 @@ class SearchActivity : AppCompatActivity() {
             arrivalGroup.visibility = View.GONE
         }
         btnSearch.setOnClickListener{
-//            val intent = Intent(this, FlightActivity::class.java).apply{
-//                putExtra(EXT_DEPARTURE_LOCATION, editTextDepartureLocation.text.toString().trim())
-//                putExtra(EXT_ARRIVAL_LOCATION, editTextArrivalLocation.text.toString().trim())
-//                putExtra(EXT_DEPARTURE_DATE, editTextDepartureDate.text.toString())
-//                putExtra(EXT_ARRIVAL_DATE, editTextArrivalDate.text.toString())
-//                putExtra(EXT_ROUND_TRIP_OPTION, roundTripOption)
-//            }
-//            startActivity(intent)
+            val intent = Intent(this, FlightActivity::class.java).apply{
+                putExtra(EXT_DEPARTURE_LOCATION, editTextDepartureLocation.text.toString().trim())
+                putExtra(EXT_ARRIVAL_LOCATION, editTextArrivalLocation.text.toString().trim())
+                putExtra(EXT_DEPARTURE_DATE, editTextDepartureDate.text.toString())
+                putExtra(EXT_ARRIVAL_DATE, editTextArrivalDate.text.toString())
+                putExtra(EXT_ROUND_TRIP_OPTION, roundTripOption)
+            }
+            startActivity(intent)
         }
+    }
+
+    override fun onDestroy() {
+
+        super.onDestroy()
     }
 
     fun setDatePicker(editText: EditText) {

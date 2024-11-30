@@ -48,4 +48,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     implementation("androidx.sqlite:sqlite-ktx:2.4.0")
     implementation("com.facebook.android:facebook-android-sdk:16.0.0")
+    implementation("com.google.code.gson:gson:2.8.7")
+    implementation("com.squareup.okhttp3:okhttp:4.9.0")
+
 }

@@ -15,6 +15,9 @@
         android:theme="@style/Theme.SkyPlanner"
         tools:targetApi="31">
         <activity
+            android:name=".SignUpActivity"
+            android:exported="false" />
+        <activity
             android:name=".DetailActivity"
             android:exported="false" />
         <activity
