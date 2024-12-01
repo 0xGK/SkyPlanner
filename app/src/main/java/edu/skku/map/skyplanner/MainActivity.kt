@@ -1,23 +1,21 @@
 package edu.skku.map.skyplanner
 
+import android.app.DatePickerDialog
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
+import android.text.Editable
+import android.text.TextWatcher
+import android.view.View
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
-import com.facebook.CallbackManager
-import com.facebook.FacebookCallback
-import com.facebook.FacebookException
-import com.facebook.FacebookSdk
-import com.facebook.GraphRequest
-import com.facebook.login.LoginManager
-import com.facebook.login.LoginResult
-import com.facebook.login.widget.LoginButton
+import androidx.appcompat.app.AppCompatActivity
 import edu.skku.map.skyplanner.database.DatabaseHelper
-import okhttp3.*
-import java.util.Arrays
+import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
     companion object{
@@ -29,124 +27,227 @@ class MainActivity : AppCompatActivity() {
         const val EXT_FLIGHT_DETAIL = "extra_key_flight_detail"
         const val EXT_USER_NAME = "extra_key_user_name"
     }
-    private lateinit var callbackManager: CallbackManager
-    private lateinit var loginManager: LoginManager
-
-    data class FacebookUser(
-        val id: String,
-        val name: String,
-        val email: String
+    val airportNames = mapOf(
+        "ICN" to "인천국제공항",
+        "SYD" to "시드니공항",
+        "JFK" to "뉴욕존에프케네디공항"
     )
-    private val client = OkHttpClient()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // SharedPreferences에서 로그인 상태 확인
+        val sharedPref = getSharedPreferences("LoginPrefs", MODE_PRIVATE)
+        val isLoggedIn = sharedPref.getBoolean("isLoggedIn", false)
+        val userName = sharedPref.getString("userName", "")
+
+        if (!isLoggedIn) {
+            // 로그인이 안 되어 있으면 LoginActivity로 이동
+            Toast.makeText(this, "로그인이 필요합니다.", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+            finish()
+        } else {
+            // 로그인된 사용자 이름 출력
+            Toast.makeText(this, "환영합니다, $userName!", Toast.LENGTH_SHORT).show()
+        }
+
         setContentView(R.layout.activity_main)
 
-        FacebookSdk.sdkInitialize(applicationContext)
 
-        callbackManager = CallbackManager.Factory.create()
-        loginManager = LoginManager.getInstance()
+        val dbHelper = DatabaseHelper(this)
+        val db = dbHelper.readableDatabase
 
-        val fbLoginBtn = findViewById<LoginButton>(R.id.fb_login_btn)
-        val loginBtn = findViewById<Button>(R.id.login_btn)
-        val signUpBtn = findViewById<Button>(R.id.sign_up_btn)
-        val userId = findViewById<EditText>(R.id.user_id)
-        val userPassword = findViewById<EditText>(R.id.user_password)
+        val departureCursor = db.rawQuery("SELECT DISTINCT departure_location FROM Flight ORDER BY departure_location", null)
+        val departureAirports = mutableListOf<String>()
+        while (departureCursor.moveToNext()) {
+            val location = departureCursor.getString(departureCursor.getColumnIndexOrThrow("departure_location"))
+            val airportName = airportNames[location] ?: "Unknown Airport"
+            departureAirports.add("$location, $airportName")
+        }
+        val arrivalCursor = db.rawQuery("SELECT DISTINCT arrival_location FROM Flight ORDER BY arrival_location", null)
+        val arrivalAirports = mutableListOf<String>()
+        while (arrivalCursor.moveToNext()) {
+            val location = arrivalCursor.getString(arrivalCursor.getColumnIndexOrThrow("arrival_location"))
+            val airportName = airportNames[location] ?: "Unknown Airport"
+            arrivalAirports.add("$location, $airportName")
+        }
 
-        loginBtn.setOnClickListener {
-            val dbHelper = DatabaseHelper(this)
-            val db = dbHelper.readableDatabase
-            val id = userId.text.toString().trim()
-            val password = userPassword.text.toString().trim()
+        departureCursor.close()
+        arrivalCursor.close()
+        db.close()
+        val btnLogout = findViewById<Button>(R.id.btn_logout)
+        val btnRoundTrip = findViewById<Button>(R.id.btnRoundTrip)
+        val btnOneWay = findViewById<Button>(R.id.btnOneWay)
+        val btnSearch = findViewById<Button>(R.id.btnSearch)
+        val editTextDepartureLocation = findViewById<AutoCompleteTextView>(R.id.editTextDepartureLocation)
+        val editTextArrivalLocation = findViewById<AutoCompleteTextView>(R.id.editTextArrivalLocation)
+        val editTextDepartureDate  = findViewById<EditText>(R.id.editTextDepartureDate)
+        val editTextArrivalDate = findViewById<EditText>(R.id.editTextArrivalDate)
+        val departureGroup = findViewById<LinearLayout>(R.id.departureGroup)
+        val arrivalGroup = findViewById<LinearLayout>(R.id.arrivalGroup)
+        val userNameText = findViewById<TextView>(R.id.user_name)
+        userNameText.text = sharedPref.getString("userName", "")
+        var roundTripOption = true
+        var departureDate: Calendar? = null
+        var arrivalDate: Calendar? = null
 
-            if (id.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "아이디와 비밀번호를 입력해주세요.", Toast.LENGTH_SHORT).show()
+        setDatePicker(editTextDepartureDate) { selectedDate ->
+            departureDate = selectedDate
+
+            // 출발 날짜가 도착 날짜보다 이후라면 도착 날짜 초기화
+            if (arrivalDate != null && departureDate!!.after(arrivalDate)) {
+                editTextArrivalDate.text.clear()
+                Toast.makeText(this, "출발 날짜는 도착 날짜보다 이전이어야 합니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        setDatePicker(editTextArrivalDate) { selectedDate ->
+            arrivalDate = selectedDate
+
+            // 도착 날짜가 출발 날짜보다 이전이라면 도착 날짜 초기화
+            if (departureDate != null && (arrivalDate!!.before(departureDate) || arrivalDate == departureDate)) {
+                editTextArrivalDate.text.clear()
+                Toast.makeText(this, "도착 날짜는 출발 날짜보다 이후이어야 합니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+
+        setupAutoCompleteTextView(editTextDepartureLocation, departureAirports)
+        setupAutoCompleteTextView(editTextArrivalLocation, arrivalAirports)
+
+
+        btnRoundTrip.setOnClickListener {
+            roundTripOption = true
+
+            // 출발일과 도착일 그룹 보이기
+            departureGroup.visibility = View.VISIBLE
+            arrivalGroup.visibility = View.VISIBLE
+        }
+
+        btnOneWay.setOnClickListener {
+            roundTripOption = false
+
+            // 출발일은 보이고 도착일은 숨기기
+            departureGroup.visibility = View.VISIBLE
+            arrivalGroup.visibility = View.GONE
+            editTextArrivalDate.text.clear()
+        }
+        btnSearch.setOnClickListener{
+            val departureLocation = editTextDepartureLocation.text.toString().trim()
+            val arrivalLocation = editTextArrivalLocation.text.toString().trim()
+            val departureDate = editTextDepartureDate.text.toString()
+            val arrivalDate = editTextArrivalDate.text.toString()
+            val missingFields = if (roundTripOption) {
+                listOf(departureLocation, arrivalLocation, departureDate, arrivalDate)
+            } else {
+                listOf(departureLocation, arrivalLocation, departureDate)
+            }
+
+            if (missingFields.any { it.isEmpty() }) {
+                Toast.makeText(this, "모든 필드를 입력해주세요.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (departureLocation == arrivalLocation) {
+                Toast.makeText(this, "출발지와 도착지가 같을 수 없습니다.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            val cursor = db.rawQuery(
-                "SELECT * FROM User WHERE user_id = ? AND password = ?",
-                arrayOf(id, password)
-            )
-
-            if (cursor.moveToFirst()) {
-                val userName = cursor.getString(cursor.getColumnIndexOrThrow("name"))
-
-                val intent = Intent(this@MainActivity, SearchActivity::class.java).apply {
-                    putExtra(EXT_USER_NAME, userName)
-                }
-                startActivity(intent)
-            } else {
-                Toast.makeText(this, "사용자 정보가 없습니다.", Toast.LENGTH_SHORT).show()
-            }
-
-            cursor.close()
-            db.close()
-        }
-
-        signUpBtn.setOnClickListener{
-            val intent = Intent(this@MainActivity, SignUpActivity::class.java).apply{
+            val intent = Intent(this, FlightActivity::class.java).apply{
+                putExtra(EXT_DEPARTURE_LOCATION, departureLocation)
+                putExtra(EXT_ARRIVAL_LOCATION, arrivalLocation)
+                putExtra(EXT_DEPARTURE_DATE, departureDate)
+                putExtra(EXT_ARRIVAL_DATE, arrivalDate)
+                putExtra(EXT_ROUND_TRIP_OPTION, roundTripOption)
             }
             startActivity(intent)
         }
+        btnLogout.setOnClickListener {
+            val sharedPref = getSharedPreferences("LoginPrefs", MODE_PRIVATE)
+            val editor = sharedPref.edit()
+            editor.clear() // 로그인 상태 초기화
+            editor.apply()
 
-        // Facebook Callback 설정 - onCreate에서 한 번만 설정
-        loginManager.registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
-            override fun onCancel() {
-                Toast.makeText(this@MainActivity, "Facebook Login Cancelled", Toast.LENGTH_SHORT).show()
-            }
-
-            override fun onError(error: FacebookException) {
-                Toast.makeText(this@MainActivity, "Facebook Login Error Occurred...", Toast.LENGTH_SHORT).show()
-                Log.d("onError", "error : ${error.message}")
-            }
-
-            override fun onSuccess(result: LoginResult) {
-                val graphRequest = GraphRequest.newMeRequest(result.accessToken) { fObject, response ->
-                    if (response?.error != null) {
-                        Log.e("GraphRequestError", response.error.toString())
-                        return@newMeRequest
-                    }
-
-                    // JSON 데이터를 파싱하여 Facebook 사용자 정보 객체 생성
-                    val gson = com.google.gson.Gson()
-                    val userInfo = gson.fromJson(fObject.toString(), FacebookUser::class.java)
-
-                    Log.d("onSuccess", "User Info: ${userInfo.name}, ${userInfo.email}")
-
-                    // Intent로 데이터 전달
-                    val intent = Intent(this@MainActivity, SearchActivity::class.java).apply {
-                        putExtra(EXT_USER_NAME, userInfo.name)
-                    }
-                    startActivity(intent)
-                }
-                val parameters = Bundle()
-                parameters.putString("fields", "id,name,email,birthday")
-                graphRequest.parameters = parameters
-                graphRequest.executeAsync()
-            }
-        })
-
-        // Facebook 로그인 버튼 클릭 이벤트
-        fbLoginBtn.setOnClickListener {
-            loginManager.logInWithReadPermissions(this, Arrays.asList("public_profile", "email"))
+            // LoginActivity로 이동
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+            finish()
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        val userId = findViewById<EditText>(R.id.user_id)
-        val userPassword = findViewById<EditText>(R.id.user_password)
-        userId.text.clear()
-        userPassword.text.clear()
-        LoginManager.getInstance().logOut() // Facebook 로그아웃
-    }
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        callbackManager.onActivityResult(requestCode, resultCode, data)
+    override fun onDestroy() {
+
+        super.onDestroy()
     }
 
+    fun setDatePicker(editText: EditText, onDateSelected: (Calendar) -> Unit) {
+        // 기본 날짜로 오늘 날짜 설정
+        val calendar = Calendar.getInstance()
+
+        editText.setOnClickListener {
+            val year = calendar.get(Calendar.YEAR)
+            val month = calendar.get(Calendar.MONTH)
+            val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+            val datePickerDialog = DatePickerDialog(
+                editText.context,
+                { _, selectedYear, selectedMonth, selectedDay ->
+                    // 선택한 날짜를 Calendar 객체에 저장
+                    calendar.set(selectedYear, selectedMonth, selectedDay)
+                    val date = "$selectedYear-${String.format("%02d", selectedMonth + 1)}-${String.format("%02d", selectedDay)}"
+                    editText.setText(date)
+
+                    // 날짜 선택 후 추가 로직 실행
+                    onDateSelected(calendar)
+                },
+                year,
+                month,
+                day
+            )
+
+            datePickerDialog.show()
+        }
+    }
 
 
+    fun validateLocations(departure: String?, arrival: String?): Boolean {
+        return departure != arrival
+    }
+
+    fun setupAutoCompleteTextView(autoCompleteTextView: AutoCompleteTextView, items: List<String>) {
+        val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, items)
+        autoCompleteTextView.setAdapter(adapter)
+
+        // 항상 드롭다운이 표시되도록 설정
+        autoCompleteTextView.threshold = 0
+        autoCompleteTextView.setOnClickListener {
+            autoCompleteTextView.text.clear()
+            autoCompleteTextView.postDelayed({
+                autoCompleteTextView.showDropDown()
+            }, 100) // 100ms 지연
+        }
+        autoCompleteTextView.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                autoCompleteTextView.performClick()
+            }
+        }
+
+        // 입력값에 따라 필터링
+        autoCompleteTextView.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                adapter.filter.filter(s)
+            }
+            override fun afterTextChanged(s: Editable?) {
+                val editTextDepartureLocation = findViewById<AutoCompleteTextView>(R.id.editTextDepartureLocation)
+                val editTextArrivalLocation = findViewById<AutoCompleteTextView>(R.id.editTextArrivalLocation)
+                val departure = editTextDepartureLocation.text.toString().trim()
+                val arrival = editTextArrivalLocation.text.toString().trim()
+
+                if (!validateLocations(departure, arrival) && !arrival.isEmpty() && !departure.isEmpty()) {
+                    autoCompleteTextView.error = "출발지와 목적지가 같을 수 없습니다."
+                } else {
+                    autoCompleteTextView.error = null
+                }
+            }
+        })
+    }
 }

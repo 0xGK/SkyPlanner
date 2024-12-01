@@ -1,12 +1,17 @@
 package edu.skku.map.skyplanner
 
-import android.content.ContentValues
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import edu.skku.map.skyplanner.database.DatabaseHelper
+import com.google.gson.Gson
+import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
+import okio.IOException
 
 class SignUpActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,9 +27,6 @@ class SignUpActivity : AppCompatActivity() {
         val signUpPinNumber = findViewById<EditText>(R.id.sign_up_pin_number)
 
         signUpBtn.setOnClickListener {
-            val dbHelper = DatabaseHelper(this)
-            val db = dbHelper.writableDatabase
-
             val id = signUpId.text.toString().trim()
             val name = signUpName.text.toString().trim()
             val password = signUpPassword.text.toString().trim()
@@ -36,36 +38,64 @@ class SignUpActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // 중복 확인
-            val cursor = db.rawQuery("SELECT * FROM User WHERE user_id = ?", arrayOf(id))
-            if (cursor.moveToFirst()) {
-                Toast.makeText(this, "이미 존재하는 ID입니다.", Toast.LENGTH_SHORT).show()
-                cursor.close()
-                db.close()
-                return@setOnClickListener
-            }
-            cursor.close()
+            // JSON 요청 생성
+            val signUpRequest = mapOf(
+                "user_id" to id,
+                "name" to name,
+                "password" to password,
+                "pin_number" to pinNumber,
+                "action" to "signup"
+            )
+            val gson = Gson()
+                val jsonBody = gson.toJson(signUpRequest)
 
-            // 중복되지 않으면 삽입
-            val contentValues = ContentValues().apply {
-                put("user_id", id)
-                put("name", name)
-                put("password", password)
-                put("pin_number", pinNumber)
-            }
+            val body = jsonBody.toRequestBody("application/json; charset=utf-8".toMediaType())
 
-            val result = db.insert("User", null, contentValues)
-            if (result != -1L) {
-                Toast.makeText(this, "회원가입 성공!", Toast.LENGTH_SHORT).show()
-                finish() // 현재 액티비티 종료
-            } else {
-                Toast.makeText(this, "회원가입 실패. 다시 시도해주세요.", Toast.LENGTH_SHORT).show()
-            }
+            // Lambda API URL
+            val host = "https://1rzijajbg5.execute-api.ap-northeast-2.amazonaws.com/default/skyPlannerUser"
 
-            db.close()
+            val request = Request.Builder()
+                .url(host)
+                .post(body)
+                .build()
+
+            // OkHttp로 요청 전송
+            val client = OkHttpClient()
+            client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    runOnUiThread {
+                        Toast.makeText(this@SignUpActivity, "회원가입 요청 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+                        Log.e("SignUpError", e.message ?: "Unknown error")
+                    }
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    response.use {
+                        if (!response.isSuccessful) {
+                            runOnUiThread {
+                                val errorMessage = when (response.code) {
+                                    409 -> "이미 존재하는 사용자 ID입니다."
+                                    else -> "회원가입 실패: ${response.message}"
+                                }
+                                Toast.makeText(this@SignUpActivity, errorMessage, Toast.LENGTH_SHORT).show()
+                            }
+                            return
+                        }
+
+                        val responseBody = response.body?.string()
+                        runOnUiThread {
+                            Toast.makeText(this@SignUpActivity, "회원가입 성공: $responseBody", Toast.LENGTH_SHORT).show()
+                            Log.d("SignUpResponse", responseBody ?: "Empty response")
+
+                            // 회원가입 성공 시 LoginActivity로 이동
+                            val intent = Intent(this@SignUpActivity, LoginActivity::class.java)
+                            startActivity(intent)
+                            finish() // SignUpActivity 종료
+                        }
+                    }
+                }
+            })
         }
-
-
 
         backBtn.setOnClickListener{
             finish()

@@ -2,10 +2,14 @@ package edu.skku.map.skyplanner
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.ListView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.gson.Gson
+import edu.skku.map.skyplanner.LoginActivity.LoginRequest
 import edu.skku.map.skyplanner.MainActivity.Companion.EXT_FLIGHT_DETAIL
 import edu.skku.map.skyplanner.adapter.OneWayFlightAdapter
 import edu.skku.map.skyplanner.adapter.RoundTripFlightAdapter
@@ -13,22 +17,36 @@ import edu.skku.map.skyplanner.database.DatabaseHelper
 import edu.skku.map.skyplanner.model.OneWayFlight
 import edu.skku.map.skyplanner.model.RoundTripFlight
 import edu.skku.map.skyplanner.utils.DateUtils
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.*
+import okhttp3.RequestBody.Companion.toRequestBody
+import okio.IOException
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 class FlightActivity : AppCompatActivity() {
     val itemsOneWay = ArrayList<OneWayFlight>()
     val itemsRoundTrip = ArrayList<RoundTripFlight>()
+    private val host = "https://xscy9x9o3d.execute-api.ap-northeast-2.amazonaws.com/default/skyPlannerFlight"
+    data class OneWayRequest(
+        val departure_location: String,
+        val arrival_location: String,
+        val departure_date: String,
+        val round_trip: Boolean = false
+    )
+    data class RoundTripRequest(
+        val departure_location: String,
+        val arrival_location: String,
+        val departure_date: String,
+        val arrival_date: String,
+        val round_trip: Boolean = true
+    )
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_flight)
-
-        val dbHelper = DatabaseHelper(this)
-        val db = dbHelper.readableDatabase
-
         val listView = findViewById<ListView>(R.id.listViewFlight)
-
-
         val btnBack = findViewById<Button>(R.id.btn_back)
         val textAirport = findViewById<TextView>(R.id.textAirport)
         val textResultCnt = findViewById<TextView>(R.id.textResultCnt)
@@ -60,111 +78,190 @@ class FlightActivity : AppCompatActivity() {
 
 
         if(roundTripOption){
-            textDepartureDate.text = formatDateToKoreanStyle(intent.getStringExtra(MainActivity.EXT_DEPARTURE_DATE).toString())+" - " +
-                    formatDateToKoreanStyle(intent.getStringExtra(MainActivity.EXT_ARRIVAL_DATE).toString())
-
-            val departureCursor = db.rawQuery(
-                "SELECT * FROM Flight WHERE departure_location = ? AND arrival_location = ? AND date(departure_date) = ?",
-                arrayOf(departureLocation, arrivalLocation, departureDate)
+            val roundTripRequest = RoundTripRequest(
+                departure_location = departureLocation,
+                arrival_location = arrivalLocation,
+                departure_date = departureDate.toString(),
+                arrival_date = arrivalDate.toString()
             )
 
-            val returnCursor = db.rawQuery(
-                "SELECT * FROM Flight WHERE departure_location = ? AND arrival_location = ? AND date(departure_date) = ?",
-                arrayOf(arrivalLocation, departureLocation, arrivalDate)
-            )
+            val gson = Gson()
+            val jsonBody = gson.toJson(roundTripRequest)
 
-            var cnt = 0
-            val departureFlights = mutableListOf<RoundTripFlight>()
-            while (departureCursor.moveToNext()) {
-                val departureDate = departureCursor.getString(departureCursor.getColumnIndexOrThrow("departure_date"))
-                val arrivalDate = departureCursor.getString(departureCursor.getColumnIndexOrThrow("arrival_date"))
-                val airline = departureCursor.getString(departureCursor.getColumnIndexOrThrow("airline"))
-                val price = departureCursor.getInt(departureCursor.getColumnIndexOrThrow("price"))
-                val flightTime = DateUtils.calculateFlightTime(departureDate, arrivalDate)
+            Log.d("FlightActivity", "Request JSON: $jsonBody") // 요청 JSON 로그 추가
 
-                departureFlights.add(
-                    RoundTripFlight(
-                        departureDate, arrivalDate, airline, price, flightTime,
-                        "", "", "", 0, 0
-                    )
-                )
-            }
+            val requestBody = jsonBody.toRequestBody("application/json; charset=utf-8".toMediaType())
 
-            // 도착편과 출발편의 모든 경우의 수 조합
-            while (returnCursor.moveToNext()) {
-                val returnDepartureDate = returnCursor.getString(returnCursor.getColumnIndexOrThrow("departure_date"))
-                val returnArrivalDate = returnCursor.getString(returnCursor.getColumnIndexOrThrow("arrival_date"))
-                val returnAirline = returnCursor.getString(returnCursor.getColumnIndexOrThrow("airline"))
-                val returnPrice = returnCursor.getInt(returnCursor.getColumnIndexOrThrow("price"))
-                val returnFlightTime = DateUtils.calculateFlightTime(returnDepartureDate, returnArrivalDate)
+            val request = Request.Builder()
+                .url(host)
+                .post(requestBody)
+                .build()
 
-                // 출발편과 반환편의 모든 조합 생성
-                for (departureFlight in departureFlights) {
-                    itemsRoundTrip.add(
-                        RoundTripFlight(
-                            departureFlight.departureDate,
-                            departureFlight.arrivalDate,
-                            departureFlight.airlineName,
-                            departureFlight.ticketPrice,
-                            departureFlight.flightTime,
-
-                            returnDepartureDate,
-                            returnArrivalDate,
-                            returnAirline,
-                            returnPrice,
-                            returnFlightTime
-                        )
-                    )
-                    cnt++
+            val client = OkHttpClient()
+            client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    Log.e("FlightActivity", "Request failed: ${e.message}") // 실패 로그
+                    runOnUiThread {
+                        Toast.makeText(this@FlightActivity, "왕복 항공편 검색 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
                 }
-            }
 
-            departureCursor.close()
-            returnCursor.close()
-            textResultCnt.text="결과 $cnt 개"
+                override fun onResponse(call: Call, response: Response) {
+                    response.use {
+                        Log.d("FlightActivity", "Response Code: ${response.code}") // 응답 코드 로그
+                        if (!response.isSuccessful) {
+                            Log.e("FlightActivity", "Response failed: ${response.message}") // 실패 응답 로그
+                            runOnUiThread {
+                                Toast.makeText(this@FlightActivity, "왕복 항공편 검색 실패: ${response.message}", Toast.LENGTH_SHORT).show()
+                            }
+                            return
+                        }
 
-            if(roundTripOption){
-                itemsRoundTrip.sortBy{it.ticketPrice+it.returnTicketPrice}
-            }else{
-                itemsOneWay.sortBy{it.ticketPrice}
-            }
-            updateListView(roundTripOption, listView);
+                        val responseBody = response.body?.string()
+                        Log.d("FlightActivity", "Response Body: $responseBody") // 응답 본문 로그
+
+                        try {
+                            val responseJson = gson.fromJson(responseBody, Map::class.java)
+                            Log.d("FlightActivity", "Parsed Response JSON: $responseJson") // 파싱된 JSON 로그
+
+                            val count = responseJson["count"] as? Double ?: 0.0
+                            val flights = responseJson["flights"] as? List<Map<String, Any>> ?: emptyList()
+
+                            runOnUiThread {
+                                textResultCnt.text = "결과 ${count.toInt()} 개"
+                                itemsRoundTrip.clear()
+
+                                flights.forEach { flight ->
+                                    try {
+                                        val departure = flight["departure"] as Map<String, Any>
+                                        val returnFlight = flight["return"] as Map<String, Any>
+
+                                        val roundTripFlight = RoundTripFlight(
+                                            departureDate = departure["departure_date"] as String,
+                                            arrivalDate = departure["arrival_date"] as String,
+                                            airlineName = departure["airline"] as String,
+                                            ticketPrice = (departure["price"] as Double).toInt(),
+                                            flightTime = DateUtils.calculateFlightTime(
+                                                departure["departure_date"] as String,
+                                                departure["arrival_date"] as String
+                                            ),
+                                            returnDepartureDate = returnFlight["departure_date"] as String,
+                                            returnArrivalDate = returnFlight["arrival_date"] as String,
+                                            returnAirlineName = returnFlight["airline"] as String,
+                                            returnTicketPrice = (returnFlight["price"] as Double).toInt(),
+                                            returnFlightTime = DateUtils.calculateFlightTime(
+                                                returnFlight["departure_date"] as String,
+                                                returnFlight["arrival_date"] as String
+                                            )
+                                        )
+
+                                        itemsRoundTrip.add(roundTripFlight)
+                                        Log.d("FlightActivity", "Mapped RoundTripFlight: $roundTripFlight") // 매핑된 객체 로그
+                                    } catch (e: Exception) {
+                                        Log.e("FlightActivity", "Error mapping flight data: ${e.message}", e) // 매핑 오류 로그
+                                    }
+                                }
+
+                                itemsRoundTrip.sortBy { it.ticketPrice + it.returnTicketPrice }
+                                updateListView(roundTripOption, listView)
+                            }
+                        } catch (e: Exception) {
+                            Log.e("FlightActivity", "Error parsing response: ${e.message}", e) // JSON 파싱 오류 로그
+                            runOnUiThread {
+                                Toast.makeText(this@FlightActivity, "데이터 처리 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                }
+            })
         }
 //      one way
         else{
-            textDepartureDate.text = formatDateToKoreanStyle(intent.getStringExtra(MainActivity.EXT_DEPARTURE_DATE).toString())
-            val cursor = db.rawQuery(
-                "SELECT * FROM Flight WHERE departure_location = ? AND arrival_location = ? AND date(departure_date) = ?",
-                arrayOf(departureLocation, arrivalLocation, departureDate)
-            )
-            var cnt=0;
-            while (cursor.moveToNext()) {
-                val departureDate = cursor.getString(cursor.getColumnIndexOrThrow("departure_date"))
-                val arrivalDate = cursor.getString(cursor.getColumnIndexOrThrow("arrival_date"))
-                val airline = cursor.getString(cursor.getColumnIndexOrThrow("airline"))
-                val price = cursor.getInt(cursor.getColumnIndexOrThrow("price"))
-                val flightTime = DateUtils.calculateFlightTime(departureDate, arrivalDate)
-                // Flight 객체 추가
-                itemsOneWay.add(
-                    OneWayFlight(
-                        departureDate,
-                        arrivalDate,
-                        airline,
-                        price,
-                        flightTime
-                    )
-                )
-                cnt+=1
-            }
-            cursor.close()
-            textResultCnt.text="결과 $cnt 개"
 
-            if(roundTripOption){
-                itemsRoundTrip.sortBy{it.ticketPrice+it.returnTicketPrice}
-            }else{
-                itemsOneWay.sortBy{it.ticketPrice}
-            }
-            updateListView(roundTripOption, listView);
+            val oneWayRequest = OneWayRequest(
+                departure_location = departureLocation,
+                arrival_location = arrivalLocation,
+                departure_date = departureDate.toString()
+            )
+            val gson = Gson()
+            val jsonBody = gson.toJson(oneWayRequest)
+
+            Log.d("FlightActivity", "Request JSON: $jsonBody") // 요청 JSON 로그 추가
+
+            val requestBody = jsonBody.toRequestBody("application/json; charset=utf-8".toMediaType())
+
+            val request = Request.Builder()
+                .url(host)
+                .post(requestBody)
+                .build()
+
+            val client = OkHttpClient()
+            client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    Log.e("FlightActivity", "Request failed: ${e.message}") // 실패 로그 추가
+                    runOnUiThread {
+                        Toast.makeText(this@FlightActivity, "항공편 검색 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    response.use {
+                        Log.d("FlightActivity", "Response Code: ${response.code}") // 응답 코드 로그 추가
+
+                        if (!response.isSuccessful) {
+                            Log.e("FlightActivity", "Response failed: ${response.message}") // 실패 응답 로그 추가
+                            runOnUiThread {
+                                Toast.makeText(this@FlightActivity, "항공편 검색 실패: ${response.message}", Toast.LENGTH_SHORT).show()
+                            }
+                            return
+                        }
+
+                        val responseBody = response.body?.string()
+                        Log.d("FlightActivity", "Response Body: $responseBody") // 응답 본문 로그 추가
+
+                        val responseJson = gson.fromJson(responseBody, Map::class.java)
+                        val count = responseJson["count"] as? Double ?: 0.0
+                        val flights = responseJson["flights"] as? List<Map<String, Any>> ?: emptyList()
+
+                        runOnUiThread {
+                            textResultCnt.text = "결과 ${count.toInt()} 개"
+                            itemsOneWay.clear()
+
+                            try {
+                                itemsOneWay.addAll(
+                                    flights.map { flight ->
+                                        val departureDate = flight["departure_date"] as String
+                                        val arrivalDate = flight["arrival_date"] as String
+                                        val airlineName = flight["airline"] as String
+                                        val ticketPrice = (flight["price"] as Double).toInt() // Double -> Int 변환
+                                        val flightTime = DateUtils.calculateFlightTime(departureDate, arrivalDate)
+
+                                        OneWayFlight(
+                                            departureDate = departureDate,
+                                            arrivalDate = arrivalDate,
+                                            airlineName = airlineName,
+                                            ticketPrice = ticketPrice,
+                                            flightTime = flightTime
+                                        )
+                                    }
+                                )
+
+                                if (roundTripOption) {
+                                    itemsRoundTrip.sortBy { it.ticketPrice + it.returnTicketPrice }
+                                } else {
+                                    itemsOneWay.sortBy { it.ticketPrice }
+                                }
+
+                                updateListView(roundTripOption, listView)
+                            } catch (e: Exception) {
+                                Toast.makeText(this@FlightActivity, "데이터 처리 중 오류 발생: ${e.message}", Toast.LENGTH_LONG).show()
+                                Log.e("FlightActivity", "Error processing flight data", e)
+                            }
+                        }
+
+                    }
+                }
+            })
         }
 
 

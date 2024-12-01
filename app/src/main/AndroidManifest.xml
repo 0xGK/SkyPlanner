@@ -24,7 +24,7 @@
             android:name=".FlightActivity"
             android:exported="false" />
         <activity
-            android:name=".SearchActivity"
+            android:name=".LoginActivity"
             android:exported="false" />
 
         <meta-data
