@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
@@ -14,7 +15,13 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import edu.skku.map.skyplanner.database.DatabaseHelper
+import com.google.gson.Gson
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import okio.IOException
 import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
@@ -31,6 +38,9 @@ class MainActivity : AppCompatActivity() {
         "ICN" to "인천국제공항",
         "SYD" to "시드니공항",
         "JFK" to "뉴욕존에프케네디공항"
+    )
+    data class LocationsResponse(
+        val locations: List<String>
     )
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,28 +62,6 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
-
-        val dbHelper = DatabaseHelper(this)
-        val db = dbHelper.readableDatabase
-
-        val departureCursor = db.rawQuery("SELECT DISTINCT departure_location FROM Flight ORDER BY departure_location", null)
-        val departureAirports = mutableListOf<String>()
-        while (departureCursor.moveToNext()) {
-            val location = departureCursor.getString(departureCursor.getColumnIndexOrThrow("departure_location"))
-            val airportName = airportNames[location] ?: "Unknown Airport"
-            departureAirports.add("$location, $airportName")
-        }
-        val arrivalCursor = db.rawQuery("SELECT DISTINCT arrival_location FROM Flight ORDER BY arrival_location", null)
-        val arrivalAirports = mutableListOf<String>()
-        while (arrivalCursor.moveToNext()) {
-            val location = arrivalCursor.getString(arrivalCursor.getColumnIndexOrThrow("arrival_location"))
-            val airportName = airportNames[location] ?: "Unknown Airport"
-            arrivalAirports.add("$location, $airportName")
-        }
-
-        departureCursor.close()
-        arrivalCursor.close()
-        db.close()
         val btnLogout = findViewById<Button>(R.id.btn_logout)
         val btnRoundTrip = findViewById<Button>(R.id.btnRoundTrip)
         val btnOneWay = findViewById<Button>(R.id.btnOneWay)
@@ -110,10 +98,53 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        val host = "https://uhtcnsqync.execute-api.ap-northeast-2.amazonaws.com/default/skyPlannerInfo"
+        val request = Request.Builder()
+            .url(host)
+            .build()
+        val client = OkHttpClient()
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    Log.e("SignUpError", e.message ?: "Unknown error")
+                }
+            }
 
-        setupAutoCompleteTextView(editTextDepartureLocation, departureAirports)
-        setupAutoCompleteTextView(editTextArrivalLocation, arrivalAirports)
+            override fun onResponse(call: Call, response: Response) {
+                response.use {
+                    if (!response.isSuccessful) {
+                        return
+                    }
 
+                    val responseBody = response.body?.string()
+                    if (responseBody != null) {
+                        try {
+                            val gson = Gson()
+                            val locationsResponse = gson.fromJson(responseBody, LocationsResponse::class.java)
+                            val airports = locationsResponse.locations
+
+                            for(airport in airports){
+                                airport+", "+ airportNames[airport]
+                            }
+                            val airportDisplayList = airports.map { airport ->
+                                val airportName = airportNames[airport] ?: "Unknown Airport"
+                                "$airport, $airportName"
+                            }
+
+
+                            runOnUiThread {
+                                setupAutoCompleteTextView(editTextDepartureLocation, airportDisplayList)
+                                setupAutoCompleteTextView(editTextArrivalLocation, airportDisplayList)
+                            }
+                        } catch (e: Exception) {
+                            runOnUiThread {
+                                Log.e("GsonError", e.message ?: "Error parsing JSON")
+                            }
+                        }
+                    }
+                }
+            }
+        })
 
         btnRoundTrip.setOnClickListener {
             roundTripOption = true

@@ -15,18 +15,18 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     override fun onCreate(db: SQLiteDatabase) {
         // 테이블 생성 쿼리
-        val createFlightTableQuery = """
-            CREATE TABLE Booking (
-                user_id varchar(255) PRIMARY KEY,
-                departure_location varchar(255) NOT NULL,
-                arrival_location varchar(255) NOT NULL,
-                departure_date datetime NOT NULL,
-                arrival_date datetime NOT NULL,
-                airline varchar(255) NOT NULL,
-                price int NOT NULL
-            )
-        """
-        db.execSQL(createFlightTableQuery)
+//        val createFlightTableQuery = """
+//            CREATE TABLE Booking (
+//                user_id varchar(255) PRIMARY KEY,
+//                departure_location varchar(255) NOT NULL,
+//                arrival_location varchar(255) NOT NULL,
+//                departure_date datetime NOT NULL,
+//                arrival_date datetime NOT NULL,
+//                airline varchar(255) NOT NULL,
+//                price int NOT NULL
+//            )
+//        """
+//        db.execSQL(createFlightTableQuery)
 //        val createUserTableQuery = """
 //            CREATE TABLE User (
 //                user_id varchar(255) PRIMARY KEY,
@@ -45,18 +45,9 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        db.execSQL("DROP TABLE IF EXISTS Flight")
-        onCreate(db)
-        Log.d(TAG, "Upgraded") // 업그레이드 로그
+//        db.execSQL("DROP TABLE IF EXISTS Flight")
+//        onCreate(db)
+//        Log.d(TAG, "Upgraded") // 업그레이드 로그
     }
 
-    fun insertInitialQuery(db: SQLiteDatabase){
-        val insertDataQueries = """
-INSERT INTO Flight (departure_location, arrival_location, departure_date, arrival_date, airline, price) VALUES
-('ICN', 'JFK', '2024-11-01 18:45', '2024-11-02 10:20', '제주항공', 879000),
-('ICN', 'JFK', '2024-11-01 13:50', '2024-11-02 04:05', '아시아나항공', 1766000);
-
-        """
-        db.execSQL(insertDataQueries)
-    }
 }

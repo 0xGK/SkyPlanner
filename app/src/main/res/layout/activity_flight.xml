@@ -45,7 +45,7 @@
         android:id="@+id/textResultCnt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="결과 913개"
+        android:text="결과 0개"
         android:textColor="@color/black"
         android:layout_marginStart="20dp"
         app:layout_constraintTop_toBottomOf="@id/guideline_list_1"

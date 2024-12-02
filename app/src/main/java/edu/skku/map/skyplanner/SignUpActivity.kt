@@ -14,6 +14,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okio.IOException
 
 class SignUpActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_up)
@@ -47,13 +48,13 @@ class SignUpActivity : AppCompatActivity() {
                 "action" to "signup"
             )
             val gson = Gson()
-                val jsonBody = gson.toJson(signUpRequest)
+            val jsonBody = gson.toJson(signUpRequest)
 
             val body = jsonBody.toRequestBody("application/json; charset=utf-8".toMediaType())
 
             // Lambda API URL
-            val host = "https://1rzijajbg5.execute-api.ap-northeast-2.amazonaws.com/default/skyPlannerUser"
 
+            val host = "https://1rzijajbg5.execute-api.ap-northeast-2.amazonaws.com/default/skyPlannerUser"
             val request = Request.Builder()
                 .url(host)
                 .post(body)
@@ -84,7 +85,7 @@ class SignUpActivity : AppCompatActivity() {
 
                         val responseBody = response.body?.string()
                         runOnUiThread {
-                            Toast.makeText(this@SignUpActivity, "회원가입 성공: $responseBody", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@SignUpActivity, "성공적으로 회원가입 하셨습니다!", Toast.LENGTH_SHORT).show()
                             Log.d("SignUpResponse", responseBody ?: "Empty response")
 
                             // 회원가입 성공 시 LoginActivity로 이동
