@@ -66,6 +66,7 @@ class MainActivity : AppCompatActivity() {
         val btnRoundTrip = findViewById<Button>(R.id.btnRoundTrip)
         val btnOneWay = findViewById<Button>(R.id.btnOneWay)
         val btnSearch = findViewById<Button>(R.id.btnSearch)
+        val btnMyPage = findViewById<Button>(R.id.btnMyPage)
         val editTextDepartureLocation = findViewById<AutoCompleteTextView>(R.id.editTextDepartureLocation)
         val editTextArrivalLocation = findViewById<AutoCompleteTextView>(R.id.editTextArrivalLocation)
         val editTextDepartureDate  = findViewById<EditText>(R.id.editTextDepartureDate)
@@ -201,6 +202,10 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
             finish()
+        }
+        btnMyPage.setOnClickListener {
+            val intent = Intent(this, MyPageActivity::class.java)
+            startActivity(intent)
         }
     }
 
