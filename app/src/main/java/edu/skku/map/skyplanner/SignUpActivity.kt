@@ -38,6 +38,10 @@ class SignUpActivity : AppCompatActivity() {
                 Toast.makeText(this, "모든 필드를 입력해주세요.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+            if (pinNumber.length<6) {
+                Toast.makeText(this, "PIN 번호는 6자리입니다.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
             // JSON 요청 생성
             val signUpRequest = mapOf(

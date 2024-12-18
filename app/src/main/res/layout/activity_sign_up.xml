@@ -145,6 +145,7 @@
                 android:layout_height="wrap_content"
                 android:inputType="numberPassword"
                 android:hint="핀번호"
+                android:maxLength="6"
                 android:textColorHint="@color/dark_gray"
                 android:textColor="@color/black"
                 android:background="@null"

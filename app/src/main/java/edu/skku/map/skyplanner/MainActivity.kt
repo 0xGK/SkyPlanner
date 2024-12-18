@@ -16,6 +16,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
+import edu.skku.map.skyplanner.utils.AirlineUtils
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -34,11 +35,7 @@ class MainActivity : AppCompatActivity() {
         const val EXT_FLIGHT_DETAIL = "extra_key_flight_detail"
         const val EXT_USER_NAME = "extra_key_user_name"
     }
-    val airportNames = mapOf(
-        "ICN" to "인천국제공항",
-        "SYD" to "시드니공항",
-        "JFK" to "뉴욕존에프케네디공항"
-    )
+
     data class LocationsResponse(
         val locations: List<String>
     )
@@ -98,54 +95,15 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "도착 날짜는 출발 날짜보다 이후이어야 합니다.", Toast.LENGTH_SHORT).show()
             }
         }
-
-        val host = "https://uhtcnsqync.execute-api.ap-northeast-2.amazonaws.com/default/skyPlannerInfo"
-        val request = Request.Builder()
-            .url(host)
-            .build()
-        val client = OkHttpClient()
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                runOnUiThread {
-                    Log.e("SignUpError", e.message ?: "Unknown error")
-                }
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                response.use {
-                    if (!response.isSuccessful) {
-                        return
-                    }
-
-                    val responseBody = response.body?.string()
-                    if (responseBody != null) {
-                        try {
-                            val gson = Gson()
-                            val locationsResponse = gson.fromJson(responseBody, LocationsResponse::class.java)
-                            val airports = locationsResponse.locations
-
-                            for(airport in airports){
-                                airport+", "+ airportNames[airport]
-                            }
-                            val airportDisplayList = airports.map { airport ->
-                                val airportName = airportNames[airport] ?: "Unknown Airport"
-                                "$airport, $airportName"
-                            }
+        val airports = listOf("ICN", "SYD", "JFK")
+        val airportDisplayList = airports.map { airport ->
+            val airportName = AirlineUtils.getAirportNames(airport)
+            "$airport, $airportName"
+        }
+        setupAutoCompleteTextView(editTextDepartureLocation, airportDisplayList)
+        setupAutoCompleteTextView(editTextArrivalLocation, airportDisplayList)
 
 
-                            runOnUiThread {
-                                setupAutoCompleteTextView(editTextDepartureLocation, airportDisplayList)
-                                setupAutoCompleteTextView(editTextArrivalLocation, airportDisplayList)
-                            }
-                        } catch (e: Exception) {
-                            runOnUiThread {
-                                Log.e("GsonError", e.message ?: "Error parsing JSON")
-                            }
-                        }
-                    }
-                }
-            }
-        })
 
         btnRoundTrip.setOnClickListener {
             roundTripOption = true

@@ -9,11 +9,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
-import edu.skku.map.skyplanner.LoginActivity.LoginRequest
 import edu.skku.map.skyplanner.MainActivity.Companion.EXT_FLIGHT_DETAIL
 import edu.skku.map.skyplanner.adapter.OneWayFlightAdapter
 import edu.skku.map.skyplanner.adapter.RoundTripFlightAdapter
-import edu.skku.map.skyplanner.database.DatabaseHelper
 import edu.skku.map.skyplanner.model.OneWayFlight
 import edu.skku.map.skyplanner.model.RoundTripFlight
 import edu.skku.map.skyplanner.utils.DateUtils
@@ -32,14 +30,16 @@ class FlightActivity : AppCompatActivity() {
         val departure_location: String,
         val arrival_location: String,
         val departure_date: String,
-        val round_trip: Boolean = false
+        val round_trip: Boolean = false,
+        val is_reservation: Boolean = false
     )
     data class RoundTripRequest(
         val departure_location: String,
         val arrival_location: String,
         val departure_date: String,
         val arrival_date: String,
-        val round_trip: Boolean = true
+        val round_trip: Boolean = true,
+        val is_reservation: Boolean = false
     )
 
 
@@ -56,7 +56,7 @@ class FlightActivity : AppCompatActivity() {
 //        val btnSortArrivalDate = findViewById<Button>(R.id.btnSortArrivalDate)
         val btnSortTime = findViewById<Button>(R.id.btnSortTime)
 
-
+        textDepartureDate.text = intent.getStringExtra(MainActivity.EXT_DEPARTURE_DATE)
         val roundTripOption = intent.getBooleanExtra(MainActivity.EXT_ROUND_TRIP_OPTION, true)
 
         val departureLocationString = intent.getStringExtra(MainActivity.EXT_DEPARTURE_LOCATION)
@@ -145,6 +145,9 @@ class FlightActivity : AppCompatActivity() {
                                                 departure["departure_date"] as String,
                                                 departure["arrival_date"] as String
                                             ),
+                                            flightId = (departure["id"] as Double).toInt(),
+                                            departureLocation = departureLocation,
+                                            arrivalLocation = arrivalLocation,
                                             returnDepartureDate = returnFlight["departure_date"] as String,
                                             returnArrivalDate = returnFlight["arrival_date"] as String,
                                             returnAirlineName = returnFlight["airline"] as String,
@@ -152,7 +155,8 @@ class FlightActivity : AppCompatActivity() {
                                             returnFlightTime = DateUtils.calculateFlightTime(
                                                 returnFlight["departure_date"] as String,
                                                 returnFlight["arrival_date"] as String
-                                            )
+                                            ),
+                                            returnFlightId = (returnFlight["id"] as Double).toInt(),
                                         )
 
                                         itemsRoundTrip.add(roundTripFlight)
@@ -235,13 +239,16 @@ class FlightActivity : AppCompatActivity() {
                                         val airlineName = flight["airline"] as String
                                         val ticketPrice = (flight["price"] as Double).toInt() // Double -> Int 변환
                                         val flightTime = DateUtils.calculateFlightTime(departureDate, arrivalDate)
-
+                                        val flightId = (flight["id"] as Double).toInt()
                                         OneWayFlight(
                                             departureDate = departureDate,
                                             arrivalDate = arrivalDate,
                                             airlineName = airlineName,
                                             ticketPrice = ticketPrice,
-                                            flightTime = flightTime
+                                            flightTime = flightTime,
+                                            departureAirport = departureLocation,
+                                            arrivalAirport = arrivalLocation,
+                                            flightId = flightId,
                                         )
                                     }
                                 )
@@ -334,7 +341,7 @@ class FlightActivity : AppCompatActivity() {
 
                 // 새로운 Activity로 이동
                 val intent = Intent(this, DetailActivity::class.java).apply {
-                    putExtra("selected_item", selectedItem) // 데이터 전달
+                    putExtra(EXT_FLIGHT_DETAIL, selectedItem) // 데이터 전달
                 }
                 startActivity(intent)
             }

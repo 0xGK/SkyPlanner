@@ -15,6 +15,12 @@
         android:theme="@style/Theme.SkyPlanner"
         tools:targetApi="31">
         <activity
+            android:name=".SignUpFaceBookActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ReservationDetailActivity"
+            android:exported="false" />
+        <activity
             android:name=".MyPageActivity"
             android:exported="false" />
         <activity

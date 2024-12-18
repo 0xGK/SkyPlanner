@@ -103,11 +103,14 @@ class LoginActivity : AppCompatActivity() {
                         val responseJson = gson.fromJson(responseBody, Map::class.java)
 
                         val userName = responseJson["name"] as? String ?: "Unknown"
+                        val pinNumber = responseJson["pin_number"] as? String ?: "Unknown"
 
                         val sharedPref = getSharedPreferences("LoginPrefs", MODE_PRIVATE)
                         val editor = sharedPref.edit()
                         editor.putBoolean("isLoggedIn", true)
                         editor.putString("userName", userName)
+                        editor.putString("userId", userId)
+                        editor.putString("pinNumber", pinNumber)
                         editor.apply()
 
                         // MainActivity로 이동
@@ -152,10 +155,12 @@ class LoginActivity : AppCompatActivity() {
                     Log.d("onSuccess", "User Info: ${userInfo.name}, ${userInfo.email}")
 
                     val userName = userInfo.name
+                    val userId = userInfo.id
                     val sharedPref = getSharedPreferences("LoginPrefs", MODE_PRIVATE)
                     val editor = sharedPref.edit()
                     editor.putBoolean("isLoggedIn", true)
                     editor.putString("userName", userName)
+                    editor.putString("userId", userId)
                     editor.apply()
 
                     // MainActivity로 이동

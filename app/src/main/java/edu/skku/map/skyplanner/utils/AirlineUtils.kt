@@ -15,4 +15,12 @@ object AirlineUtils {
             else -> R.drawable.default_air_logo // 기본 로고 (없을 경우 대체)
         }
     }
+    fun getAirportNames(airportName: String): String{
+        return when(airportName){
+            "ICN" -> "인천국제공항"
+            "SYD" -> "시드니공항"
+            "JFK" -> "뉴욕존에프케네디공항"
+            else -> ""
+        }
+    }
 }

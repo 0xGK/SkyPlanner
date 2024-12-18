@@ -54,7 +54,7 @@ class RoundTripFlightAdapter(val data:ArrayList<RoundTripFlight>, val context: C
         } else {
             "${data[p0].airlineName} & ${data[p0].returnAirlineName}"
         }
-        ticketPrice.text = DateUtils.formatCurrency(data[p0].ticketPrice+data[p0].returnTicketPrice)
+        ticketPrice.text = DateUtils.formatCurrencyKorean(data[p0].ticketPrice+data[p0].returnTicketPrice)
         totalFlightTime.text = "총" + DateUtils.parseFlightTime(data[p0].flightTime+data[p0].returnFlightTime)
 
         val departureDate = data[p0].departureDate

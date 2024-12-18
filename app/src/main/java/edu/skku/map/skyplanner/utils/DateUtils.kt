@@ -29,9 +29,13 @@ object DateUtils {
     }
 
     // 가격 포맷 (1,000,000원 형태)
-    fun formatCurrency(price: Int): String {
+    fun formatCurrencyKorean(price: Int): String {
         val numberFormat = NumberFormat.getNumberInstance(Locale.KOREA)
         return numberFormat.format(price) + "원"
+    }
+    fun formatCurrency(price: Int): String {
+        val numberFormat = NumberFormat.getNumberInstance(Locale.KOREA)
+        return numberFormat.format(price)
     }
 
     // 날짜 차이 계산 (일 단위)
@@ -60,4 +64,17 @@ object DateUtils {
             "시간 오류"
         }
     }
+
+    fun formatTimeKorean(dateString: String): String {
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.KOREA)
+        val outputFormat = SimpleDateFormat("yyyy년 MM월 dd일 HH시 mm분", Locale.KOREA)
+
+        return try {
+            val date = inputFormat.parse(dateString)
+            outputFormat.format(date)
+        } catch (e: Exception) {
+            "시간 오류"
+        }
+    }
+
 }
