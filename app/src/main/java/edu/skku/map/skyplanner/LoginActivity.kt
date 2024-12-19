@@ -1,7 +1,6 @@
 package edu.skku.map.skyplanner
 
 import android.content.Intent
-import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -58,10 +57,10 @@ class LoginActivity : AppCompatActivity() {
         fbLoginBtn.isClickable = false
 
 
+        val host = " https://1rzijajbg5.execute-api.ap-northeast-2.amazonaws.com/default/skyPlannerUser"
         loginBtn.setOnClickListener {
             val client = OkHttpClient()
             val gson = Gson()
-            val host = " https://1rzijajbg5.execute-api.ap-northeast-2.amazonaws.com/default/skyPlannerUser"
 
             val userId = userId.text.toString().trim()
             val password = userPassword.text.toString().trim()
@@ -148,28 +147,83 @@ class LoginActivity : AppCompatActivity() {
                         return@newMeRequest
                     }
 
+                    val gson = Gson()
                     // JSON 데이터를 파싱하여 Facebook 사용자 정보 객체 생성
-                    val gson = com.google.gson.Gson()
                     val userInfo = gson.fromJson(fObject.toString(), FacebookUser::class.java)
 
                     Log.d("onSuccess", "User Info: ${userInfo.name}, ${userInfo.email}")
 
                     val userName = userInfo.name
-                    val userId = userInfo.id
-                    val sharedPref = getSharedPreferences("LoginPrefs", MODE_PRIVATE)
-                    val editor = sharedPref.edit()
-                    editor.putBoolean("isLoggedIn", true)
-                    editor.putString("userName", userName)
-                    editor.putString("userId", userId)
-                    editor.apply()
+                    val client = OkHttpClient()
+//                    val sharedPref = getSharedPreferences("LoginPrefs", MODE_PRIVATE)
+//                    val editor = sharedPref.edit()
+//                    editor.putBoolean("isLoggedIn", true)
+//                    editor.putString("userName", userName)
+//                    editor.putString("userId", userId)
+//                    editor.apply()
 
                     // MainActivity로 이동
-                    val intent = Intent(this@LoginActivity, MainActivity::class.java)
-                    startActivity(intent)
-                    finish() // LoginActivity 종료
+//                    val intent = Intent(this@LoginActivity, MainActivity::class.java)
+//                    startActivity(intent)
+//                    finish() // LoginActivity 종료
+                    val loginRequest = LoginRequest(user_id = userInfo.email, password = userInfo.id)
+                    val jsonBody = gson.toJson(loginRequest)
+
+                    val body = jsonBody.toRequestBody("application/json; charset=utf-8".toMediaType())
+
+                    val request = Request.Builder()
+                        .url(host)
+                        .post(body)
+                        .build()
+
+                    client.newCall(request).enqueue(object : Callback {
+                        override fun onFailure(call: Call, e: IOException) {
+                            runOnUiThread {
+                                Toast.makeText(this@LoginActivity, "로그인 요청 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+                                Log.e("LoginError", e.message ?: "Unknown error")
+                            }
+                        }
+
+                        override fun onResponse(call: Call, response: Response) {
+                            response.use {
+                                if (!response.isSuccessful) {
+                                    runOnUiThread {
+                                        Toast.makeText(this@LoginActivity, "최초 로그인 시, 핀 번호 설정이 필요합니다", Toast.LENGTH_SHORT).show()
+                                        val intent = Intent(this@LoginActivity, SignUpFaceBookActivity::class.java).apply{
+                                            putExtra(MainActivity.EXT_USER_NAME, userName)
+                                            putExtra(MainActivity.EXT_USER_ID, userInfo.email)
+                                            putExtra(MainActivity.EXT_USER_PASSWORD, userInfo.id)
+                                        }
+                                        startActivity(intent)
+
+                                    }
+                                    return
+                                }
+                                // Lambda 응답 파싱
+                                val responseBody = response.body?.string()
+                                val responseJson = gson.fromJson(responseBody, Map::class.java)
+
+                                val userName = responseJson["name"] as? String ?: "Unknown"
+                                val pinNumber = responseJson["pin_number"] as? String ?: "Unknown"
+
+                                val sharedPref = getSharedPreferences("LoginPrefs", MODE_PRIVATE)
+                                val editor = sharedPref.edit()
+                                editor.putBoolean("isLoggedIn", true)
+                                editor.putString("userName", userName)
+                                editor.putString("userId", userInfo.email)
+                                editor.putString("pinNumber", pinNumber)
+                                editor.apply()
+
+                                // MainActivity로 이동
+                                val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                                startActivity(intent)
+                                finish() // LoginActivity 종료
+                            }
+                        }
+                    })
                 }
                 val parameters = Bundle()
-                parameters.putString("fields", "id,name,email,birthday")
+                parameters.putString("fields", "id,name,email")
                 graphRequest.parameters = parameters
                 graphRequest.executeAsync()
             }

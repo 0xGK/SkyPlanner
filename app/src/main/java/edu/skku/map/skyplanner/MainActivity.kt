@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
@@ -15,17 +14,11 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.gson.Gson
 import edu.skku.map.skyplanner.utils.AirlineUtils
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
-import okio.IOException
 import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
+    private val airports = listOf("ICN", "SYD", "JFK", "DOH")
     companion object{
         const val EXT_DEPARTURE_LOCATION = "extra_key_departure_location"
         const val EXT_ARRIVAL_LOCATION = "extra_key_arrival_location"
@@ -34,6 +27,8 @@ class MainActivity : AppCompatActivity() {
         const val EXT_ROUND_TRIP_OPTION = "extra_key_round_trip_option"
         const val EXT_FLIGHT_DETAIL = "extra_key_flight_detail"
         const val EXT_USER_NAME = "extra_key_user_name"
+        const val EXT_USER_ID = "extra_key_user_id"
+        const val EXT_USER_PASSWORD = "extra_key_user_email"
     }
 
     data class LocationsResponse(
@@ -95,7 +90,7 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "도착 날짜는 출발 날짜보다 이후이어야 합니다.", Toast.LENGTH_SHORT).show()
             }
         }
-        val airports = listOf("ICN", "SYD", "JFK")
+
         val airportDisplayList = airports.map { airport ->
             val airportName = AirlineUtils.getAirportNames(airport)
             "$airport, $airportName"

@@ -35,16 +35,16 @@ class RoundTripFlightAdapter(val data:ArrayList<RoundTripFlight>, val context: C
 
         val flightItem1 = generatedView.findViewById<View>(R.id.flightItem1)
         val airlineLogo = flightItem1.findViewById<ImageView>(R.id.airlineLogo)
-        val flightDepartureDate = flightItem1.findViewById<TextView>(R.id.flightDepartureDate)
-        val flightArrivalDate = flightItem1.findViewById<TextView>(R.id.flightArrivalDate)
+        val flightDepartureDate = flightItem1.findViewById<TextView>(R.id.flightDepartureTime)
+        val flightArrivalDate = flightItem1.findViewById<TextView>(R.id.flightArrivalTime)
         val flightTime = flightItem1.findViewById<TextView>(R.id.flightTime)
         val flightDiffDate = flightItem1.findViewById<TextView>(R.id.flightDiffDate)
 
 
         val flightItem2 = generatedView.findViewById<View>(R.id.flightItem2)
         val returnAirlineLogo = flightItem2.findViewById<ImageView>(R.id.airlineLogo)
-        val returnFlightDepartureDate = flightItem2.findViewById<TextView>(R.id.flightDepartureDate)
-        val returnFlightArrivalDate = flightItem2.findViewById<TextView>(R.id.flightArrivalDate)
+        val returnFlightDepartureDate = flightItem2.findViewById<TextView>(R.id.flightDepartureTime)
+        val returnFlightArrivalDate = flightItem2.findViewById<TextView>(R.id.flightArrivalTime)
         val returnFlightTime = flightItem2.findViewById<TextView>(R.id.flightTime)
         val returnFlightDiffDate = flightItem2.findViewById<TextView>(R.id.flightDiffDate)
 
@@ -55,7 +55,7 @@ class RoundTripFlightAdapter(val data:ArrayList<RoundTripFlight>, val context: C
             "${data[p0].airlineName} & ${data[p0].returnAirlineName}"
         }
         ticketPrice.text = DateUtils.formatCurrencyKorean(data[p0].ticketPrice+data[p0].returnTicketPrice)
-        totalFlightTime.text = "총" + DateUtils.parseFlightTime(data[p0].flightTime+data[p0].returnFlightTime)
+        totalFlightTime.text = "총 " + DateUtils.parseFlightTime(data[p0].flightTime+data[p0].returnFlightTime)
 
         val departureDate = data[p0].departureDate
         val arrivalDate = data[p0].arrivalDate

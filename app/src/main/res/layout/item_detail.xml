@@ -88,8 +88,8 @@
         android:layout_marginHorizontal="20dp"
         android:background="@color/dark_gray"
         app:layout_constraintStart_toEndOf="@id/airlineLogo"
-        app:layout_constraintTop_toTopOf="@id/flightDepartureDate"
-        app:layout_constraintBottom_toBottomOf="@id/flightArrivalDate"
+        app:layout_constraintTop_toTopOf="@id/flightDepartureTime"
+        app:layout_constraintBottom_toBottomOf="@id/flightArrivalTime"
 
 
         />
@@ -103,7 +103,7 @@
         app:layout_constraintTop_toBottomOf="@id/airlineLogo"
     />
     <TextView
-        android:id="@+id/flightDepartureDate"
+        android:id="@+id/flightDepartureTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="2024년 12월 19일 (목) 18:45"
@@ -120,7 +120,7 @@
         android:layout_height="wrap_content"
         android:text="10시간 10분"
         app:layout_constraintStart_toEndOf="@id/line"
-        app:layout_constraintTop_toBottomOf="@id/flightDepartureDate"
+        app:layout_constraintTop_toBottomOf="@id/flightDepartureTime"
         android:textSize="16dp"
         android:textColor="@color/green"
         android:layout_marginTop="10dp"
@@ -128,7 +128,7 @@
         />
 
     <TextView
-        android:id="@+id/flightArrivalDate"
+        android:id="@+id/flightArrivalTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="2024년 12월 19일 (목) 18:45"
@@ -145,7 +145,7 @@
         android:layout_height="wrap_content"
         android:text="500,000원"
         app:layout_constraintEnd_toEndOf="@id/linearLayout1"
-        app:layout_constraintTop_toBottomOf="@id/flightArrivalDate"
+        app:layout_constraintTop_toBottomOf="@id/flightArrivalTime"
         android:textSize="16dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="10dp"

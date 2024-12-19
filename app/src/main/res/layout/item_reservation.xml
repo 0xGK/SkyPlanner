@@ -6,15 +6,15 @@
 
     <LinearLayout
         android:id="@+id/linearLayout1"
-        android:layout_width="350dp"
-        android:layout_height="190dp"
+        android:layout_width="match_parent"
+        android:layout_height="160dp"
 
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
 
         android:orientation="vertical"
-        android:layout_marginHorizontal="40dp"
+        android:layout_marginHorizontal="10dp"
         android:background="@drawable/sign_up_box"
         android:layout_marginVertical="10dp"
         />
@@ -23,25 +23,15 @@
         android:id="@+id/startAirport"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="ICN"
+        android:text="ICN(인천국제공항)"
         app:layout_constraintStart_toStartOf="@id/linearLayout1"
         app:layout_constraintEnd_toEndOf="@id/guideline_ver_3"
         app:layout_constraintTop_toTopOf="@id/linearLayout1"
         android:layout_marginTop="10dp"
         android:textStyle="bold"
-        android:textSize="20dp"
-        />
-    <TextView
-        android:id="@+id/startLocation"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="인천"
-        app:layout_constraintStart_toStartOf="@id/linearLayout1"
-        app:layout_constraintEnd_toEndOf="@id/guideline_ver_3"
-        app:layout_constraintTop_toBottomOf="@id/startAirport"
         android:textSize="14dp"
-        android:textColor="@color/dark_gray"
         />
+
 
 
 
@@ -49,26 +39,25 @@
         android:id="@+id/endAirport"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="SYD"
+        android:text="SYD(시드니공항)"
         app:layout_constraintStart_toStartOf="@id/guideline_ver_3"
         app:layout_constraintEnd_toEndOf="@id/linearLayout1"
         app:layout_constraintTop_toTopOf="@id/linearLayout1"
         android:layout_marginTop="10dp"
         android:textStyle="bold"
-        android:textSize="20dp"
+        android:textSize="14dp"
         />
     <TextView
-        android:id="@+id/endLocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="뉴욕존에프케네디공항"
-        app:layout_constraintStart_toStartOf="@id/guideline_ver_3"
+        android:text="ㅡ"
+        app:layout_constraintStart_toStartOf="@id/linearLayout1"
         app:layout_constraintEnd_toEndOf="@id/linearLayout1"
-        app:layout_constraintTop_toBottomOf="@id/endAirport"
+        app:layout_constraintTop_toTopOf="@id/linearLayout1"
+        android:layout_marginTop="10dp"
+        android:textStyle="bold"
         android:textSize="14dp"
-        android:textColor="@color/dark_gray"
         />
-
 
     <ImageView
         android:id="@+id/airlineLogo"
@@ -76,7 +65,7 @@
         android:layout_height="60dp"
         android:src="@drawable/default_air_logo"
         app:layout_constraintStart_toStartOf="@id/linearLayout1"
-        app:layout_constraintTop_toBottomOf="@id/startLocation"
+        app:layout_constraintTop_toBottomOf="@id/flightDepartureDate"
         android:layout_marginTop="10dp"
         android:layout_marginStart="20dp"
         />
@@ -87,8 +76,8 @@
         android:layout_marginHorizontal="20dp"
         android:background="@color/dark_gray"
         app:layout_constraintStart_toEndOf="@id/airlineLogo"
-        app:layout_constraintTop_toTopOf="@id/flightDepartureDate"
-        app:layout_constraintBottom_toBottomOf="@id/flightArrivalDate"
+        app:layout_constraintTop_toTopOf="@id/flightDepartureTime"
+        app:layout_constraintBottom_toBottomOf="@id/flightArrivalTime"
 
 
         />
@@ -105,9 +94,19 @@
         android:id="@+id/flightDepartureDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="2024년 12월 19일 (목) 18:45"
+        android:text="2024년 12월 19일 (목)"
+        app:layout_constraintStart_toStartOf="@id/linearLayout1"
+        app:layout_constraintEnd_toEndOf="@id/guideline_ver_3"
+        app:layout_constraintTop_toBottomOf="@id/startAirport"
+        android:textSize="12dp"
+        />
+    <TextView
+        android:id="@+id/flightDepartureTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="18:45"
         app:layout_constraintStart_toEndOf="@id/line"
-        app:layout_constraintTop_toBottomOf="@id/startLocation"
+        app:layout_constraintTop_toBottomOf="@id/flightDepartureDate"
         android:textSize="16dp"
         android:layout_marginTop="10dp"
         android:layout_marginStart="30dp"
@@ -119,7 +118,7 @@
         android:layout_height="wrap_content"
         android:text="10시간 10분"
         app:layout_constraintStart_toEndOf="@id/line"
-        app:layout_constraintTop_toBottomOf="@id/flightDepartureDate"
+        app:layout_constraintTop_toBottomOf="@id/flightDepartureTime"
         android:textSize="16dp"
         android:textColor="@color/green"
         android:layout_marginTop="5dp"
@@ -130,7 +129,17 @@
         android:id="@+id/flightArrivalDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="2024년 12월 19일 (목) 18:45"
+        android:text="2024년 12월 19일 (목)"
+        app:layout_constraintStart_toStartOf="@id/guideline_ver_3"
+        app:layout_constraintEnd_toEndOf="@id/linearLayout1"
+        app:layout_constraintTop_toBottomOf="@id/endAirport"
+        android:textSize="12dp"
+        />
+    <TextView
+        android:id="@+id/flightArrivalTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="18:45"
         app:layout_constraintStart_toEndOf="@id/line"
         app:layout_constraintTop_toBottomOf="@id/flightTime"
         android:textSize="16dp"
@@ -138,15 +147,24 @@
         android:layout_marginStart="30dp"
         />
     <TextView
+        android:id="@+id/flightDiffDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="+1"
+        android:textSize="10dp"
+        app:layout_constraintTop_toTopOf="@id/flightArrivalTime"
+        app:layout_constraintStart_toEndOf="@id/flightArrivalTime"
+        android:layout_marginTop="-3dp" />
+    <TextView
         android:id="@+id/ticketPrice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="500,000원"
+        app:layout_constraintStart_toEndOf="@id/flightTime"
         app:layout_constraintEnd_toEndOf="@id/linearLayout1"
-        app:layout_constraintTop_toBottomOf="@id/flightArrivalDate"
-        android:textSize="16dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="10dp"
+        app:layout_constraintTop_toTopOf="@id/flightDepartureTime"
+        app:layout_constraintBottom_toBottomOf="@id/flightArrivalTime"
+        android:textSize="18dp"
         />
 
     <androidx.constraintlayout.widget.Guideline

@@ -76,5 +76,17 @@ object DateUtils {
             "시간 오류"
         }
     }
+    fun formatTimeKoreanDate(dateString: String): String {
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.KOREA)
+        val outputFormat = SimpleDateFormat("yyyy년 MM월 dd일", Locale.KOREA)
+
+        return try {
+            val date = inputFormat.parse(dateString)
+            outputFormat.format(date)
+        } catch (e: Exception) {
+            "시간 오류"
+        }
+    }
+
 
 }

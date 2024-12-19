@@ -121,8 +121,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/guideline_list_3"
-        android:divider="@color/dark_gray"
-        android:dividerHeight="1dp"
+        android:divider="@null"
         />
 
     <androidx.constraintlayout.widget.Guideline

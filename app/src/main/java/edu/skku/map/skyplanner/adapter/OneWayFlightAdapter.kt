@@ -30,8 +30,8 @@ class OneWayFlightAdapter(val data:ArrayList<OneWayFlight>, val context: Context
 
         val airlineName = generatedView.findViewById<TextView>(R.id.airlineName)
         val airlineLogo = generatedView.findViewById<ImageView>(R.id.airlineLogo)
-        val flightDepartureDate = generatedView.findViewById<TextView>(R.id.flightDepartureDate)
-        val flightArrivalDate = generatedView.findViewById<TextView>(R.id.flightArrivalDate)
+        val flightDepartureDate = generatedView.findViewById<TextView>(R.id.flightDepartureTime)
+        val flightArrivalDate = generatedView.findViewById<TextView>(R.id.flightArrivalTime)
         val flightTime = generatedView.findViewById<TextView>(R.id.flightTime)
         val ticketPrice = generatedView.findViewById<TextView>(R.id.ticketPrice)
         val flightDiffDate = generatedView.findViewById<TextView>(R.id.flightDiffDate)

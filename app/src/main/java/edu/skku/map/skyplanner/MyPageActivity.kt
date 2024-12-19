@@ -49,10 +49,11 @@ class MyPageActivity : AppCompatActivity() {
         val mileage = findViewById<TextView>(R.id.mileage)
         val listView = findViewById<ListView>(R.id.listViewFlight)
         val textResultCnt = findViewById<TextView>(R.id.textResultCnt)
-
+        val userName = findViewById<TextView>(R.id.user_name)
 
         val sharedPref = getSharedPreferences("LoginPrefs", MODE_PRIVATE)
         val userId = sharedPref.getString("userId", "null")
+        userName.text =sharedPref.getString("userName", "null")
 
         if (userId == null) {
             Toast.makeText(this, "로그인이 필요합니다.", Toast.LENGTH_SHORT).show()

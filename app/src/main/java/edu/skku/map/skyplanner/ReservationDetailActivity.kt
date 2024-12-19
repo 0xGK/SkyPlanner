@@ -1,9 +1,6 @@
 package edu.skku.map.skyplanner
 
-import android.content.Intent
 import android.os.Bundle
-import android.os.Parcelable
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -14,7 +11,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
 import edu.skku.map.skyplanner.model.OneWayFlight
-import edu.skku.map.skyplanner.model.RoundTripFlight
 import edu.skku.map.skyplanner.utils.AirlineUtils
 import edu.skku.map.skyplanner.utils.DateUtils
 import okhttp3.Call
@@ -38,8 +34,8 @@ class ReservationDetailActivity : AppCompatActivity() {
         val endAirport1 = itemDetail1.findViewById<TextView>(R.id.endAirport)
         val startLocation1 = itemDetail1.findViewById<TextView>(R.id.startLocation)
         val endLocation1 = itemDetail1.findViewById<TextView>(R.id.endLocation)
-        val startDate1 = itemDetail1.findViewById<TextView>(R.id.flightDepartureDate)
-        val endDate1 = itemDetail1.findViewById<TextView>(R.id.flightArrivalDate)
+        val startDate1 = itemDetail1.findViewById<TextView>(R.id.flightDepartureTime)
+        val endDate1 = itemDetail1.findViewById<TextView>(R.id.flightArrivalTime)
         val duration1 = itemDetail1.findViewById<TextView>(R.id.flightTime)
         val airlineName1 = itemDetail1.findViewById<TextView>(R.id.airlineName)
         val airlineLogo1 = itemDetail1.findViewById<ImageView>(R.id.airlineLogo)
