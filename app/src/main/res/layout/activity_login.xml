@@ -12,13 +12,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="스카이 플래너\n항공권을 조회하세요!"
+        android:gravity="center"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         android:textColor="@color/dark_green"
         android:textSize="20sp"
         android:textStyle="bold"
         android:layout_marginTop="50dp"
-        android:layout_marginStart="20dp"
         />
     <LinearLayout
         android:id="@+id/linearLayout1"

@@ -47,16 +47,15 @@
         android:textStyle="bold"
         android:textSize="14dp"
         />
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="ㅡ"
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@drawable/right_arrow_icon3"
         app:layout_constraintStart_toStartOf="@id/linearLayout1"
         app:layout_constraintEnd_toEndOf="@id/linearLayout1"
-        app:layout_constraintTop_toTopOf="@id/linearLayout1"
-        android:layout_marginTop="10dp"
-        android:textStyle="bold"
-        android:textSize="14dp"
+        app:layout_constraintTop_toTopOf="@id/startAirport"
+        app:layout_constraintBottom_toBottomOf="@id/flightDepartureDate"
+
         />
 
     <ImageView

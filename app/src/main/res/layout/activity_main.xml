@@ -212,7 +212,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:padding="10dp"
-                android:hint="도착일"
+                android:hint="귀국일"
                 android:textColor="@color/black"
                 android:textColorHint="@color/dark_gray"
                 android:focusable="false"

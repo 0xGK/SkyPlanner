@@ -78,6 +78,7 @@ class FlightActivity : AppCompatActivity() {
 
 
         if(roundTripOption){
+            textDepartureDate.text = intent.getStringExtra(MainActivity.EXT_DEPARTURE_DATE)+" - "+intent.getStringExtra(MainActivity.EXT_ARRIVAL_DATE)
             val roundTripRequest = RoundTripRequest(
                 departure_location = departureLocation,
                 arrival_location = arrivalLocation,
@@ -303,17 +304,6 @@ class FlightActivity : AppCompatActivity() {
 
     }
 
-    private fun formatDateToKoreanStyle(dateString: String): String {
-        val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.KOREA) // 입력 형식
-        val outputFormat = SimpleDateFormat("MM월 dd일", Locale.KOREA)  // 출력 형식
-
-        return try {
-            val date = inputFormat.parse(dateString) // 문자열을 Date로 변환
-            outputFormat.format(date)               // 변환된 날짜 반환
-        } catch (e: Exception) {
-            "날짜 오류" // 파싱 실패 시 기본값 반환
-        }
-    }
 
     private fun updateListView(roundTripOption: Boolean, listView: ListView) {
 

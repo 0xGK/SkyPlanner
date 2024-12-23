@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity() {
             finish()
         } else {
             // 로그인된 사용자 이름 출력
-            Toast.makeText(this, "환영합니다, $userName!", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(this, "환영합니다, $userName!", Toast.LENGTH_SHORT).show()
         }
 
         setContentView(R.layout.activity_main)
@@ -75,8 +75,8 @@ class MainActivity : AppCompatActivity() {
             departureDate = selectedDate
 
             // 출발 날짜가 도착 날짜보다 이후라면 도착 날짜 초기화
-            if (arrivalDate != null && departureDate!!.after(arrivalDate)) {
-                editTextArrivalDate.text.clear()
+            if (roundTripOption == true && arrivalDate != null && departureDate!!.after(arrivalDate) || arrivalDate == departureDate) {
+                editTextDepartureDate.text.clear()
                 Toast.makeText(this, "출발 날짜는 도착 날짜보다 이전이어야 합니다.", Toast.LENGTH_SHORT).show()
             }
         }
@@ -85,7 +85,7 @@ class MainActivity : AppCompatActivity() {
             arrivalDate = selectedDate
 
             // 도착 날짜가 출발 날짜보다 이전이라면 도착 날짜 초기화
-            if (departureDate != null && (arrivalDate!!.before(departureDate) || arrivalDate == departureDate)) {
+            if (roundTripOption == true && departureDate != null && (arrivalDate!!.before(departureDate) || arrivalDate == departureDate)) {
                 editTextArrivalDate.text.clear()
                 Toast.makeText(this, "도착 날짜는 출발 날짜보다 이후이어야 합니다.", Toast.LENGTH_SHORT).show()
             }

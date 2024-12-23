@@ -44,7 +44,16 @@
         android:textColor="@color/dark_gray"
         />
 
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@drawable/right_arrow_icon3"
+        app:layout_constraintStart_toStartOf="@id/linearLayout1"
+        app:layout_constraintEnd_toEndOf="@id/linearLayout1"
+        app:layout_constraintTop_toTopOf="@id/startAirport"
+        app:layout_constraintBottom_toBottomOf="@id/startLocation"
 
+        />
 
     <TextView
         android:id="@+id/endAirport"

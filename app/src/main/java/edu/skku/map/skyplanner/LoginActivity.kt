@@ -57,7 +57,7 @@ class LoginActivity : AppCompatActivity() {
         fbLoginBtn.isClickable = false
 
 
-        val host = " https://1rzijajbg5.execute-api.ap-northeast-2.amazonaws.com/default/skyPlannerUser"
+        val host = "https://1rzijajbg5.execute-api.ap-northeast-2.amazonaws.com/default/skyPlannerUser"
         loginBtn.setOnClickListener {
             val client = OkHttpClient()
             val gson = Gson()
@@ -93,7 +93,7 @@ class LoginActivity : AppCompatActivity() {
                     response.use {
                         if (!response.isSuccessful) {
                             runOnUiThread {
-                                Toast.makeText(this@LoginActivity, "로그인 실패: ${response.message}", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this@LoginActivity, "로그인이 실패하였습니다. 아이디 혹은 패스워드를 확인하세요", Toast.LENGTH_SHORT).show()
                             }
                             return
                         }
