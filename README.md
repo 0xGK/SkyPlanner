@@ -105,6 +105,26 @@
 ### 데이터 흐름
 - 클라이언트 → API Gateway → Lambda → RDS → Lambda 응답 → 클라이언트.
 
----
+### 워크플로우
+![image](https://github.com/user-attachments/assets/020b3f7c-22de-452d-a84d-ebb5af62c324)
+![image](https://github.com/user-attachments/assets/3d26ffa1-24b3-4637-821b-56ad49837393)
+![image](https://github.com/user-attachments/assets/0ef0b8b5-31ff-49a2-9a87-11d80e131285)
+![image](https://github.com/user-attachments/assets/a5f727ad-07ef-4a77-ab11-ef1b6bdf043a)
+![image](https://github.com/user-attachments/assets/3525d056-9490-4fe4-9c1d-0cc5fc98a4a5)
+![image](https://github.com/user-attachments/assets/5df8d09c-94a7-4588-93f6-34e0ea787d0a)
+![image](https://github.com/user-attachments/assets/8d9fde26-fcb1-410e-ae09-0d8290b46e27)
 
-스카이 플래너는 효율적인 항공권 검색 및 예약 기능과 사용자 친화적인 UI/UX를 통해 여행 준비 과정을 혁신합니다.
+![image](https://github.com/user-attachments/assets/2717a387-c35b-4218-ac85-67c538dc09fd)
+![image](https://github.com/user-attachments/assets/d99dfae9-f4bb-433c-8eac-c6130db28e23)
+![image](https://github.com/user-attachments/assets/d7de0dc3-e1b5-4149-ae26-c35c115a78cd)
+![image](https://github.com/user-attachments/assets/7aae534a-e2ec-4f43-bc86-6675e52b1017)
+![image](https://github.com/user-attachments/assets/1585e7c3-347f-4b2c-aca4-b9cdc4494036)
+
+
+
+
+
+
+
+
+
